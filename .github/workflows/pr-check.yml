@@ -1,0 +1,59 @@
+# .github/workflows/pr-check.yml
+# ─────────────────────────────────────────────────────────────
+# PR CHECK — runs on every Pull Request
+# Validates code quality before merging to main
+# ─────────────────────────────────────────────────────────────
+
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r app/backend/requirements.txt
+          pip install pytest httpx flake8
+
+      - name: Lint with flake8
+        run: |
+          # Check for syntax errors and style issues
+          flake8 app/backend/ --max-line-length=100 --exclude=__pycache__
+
+      - name: Run tests
+        run: |
+          cd app/backend
+          pytest tests/ -v
+
+  terraform-validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/
+
+      - name: Terraform Validate
+        run: |
+          cd terraform/environments/dev
+          terraform init -backend=false
+          terraform validate

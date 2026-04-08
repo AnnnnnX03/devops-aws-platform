@@ -1,0 +1,72 @@
+# docker-compose.yml
+# ─────────────────────────────────────────────────────────────
+# LOCAL DEVELOPMENT ENVIRONMENT
+# Mirrors the AWS architecture on your Mac
+# Run: docker-compose up --build
+# ─────────────────────────────────────────────────────────────
+
+version: '3.8'
+
+services:
+
+  # ── PostgreSQL (mirrors RDS) ────────────────────────────────
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: localpassword123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI Backend (mirrors ECS backend task) ───────────────
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: local
+      DATABASE_URL: postgresql://appuser:localpassword123@postgres:5432/appdb
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./app/backend:/app  # Hot reload during development
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ── AI Service (mirrors ECS ai-service task) ─────────────────
+  ai-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ai
+    ports:
+      - "8001:8001"
+    environment:
+      ENVIRONMENT: local
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}      # Optional — works without it (mock mode)
+    volumes:
+      - ./app/backend:/app
+
+  # ── Grafana (mirrors CloudWatch dashboards) ──────────────────
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+
+volumes:
+  postgres_data:
+  grafana_data:

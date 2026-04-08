@@ -1,0 +1,46 @@
+# docker/Dockerfile.backend
+# ─────────────────────────────────────────────────────────────
+# MULTI-STAGE BUILD
+# Stage 1 (builder): install dependencies
+# Stage 2 (final):   copy only what's needed → smaller, safer image
+# ─────────────────────────────────────────────────────────────
+
+# ── STAGE 1: Builder ─────────────────────────────────────────
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+# Copy requirements first (Docker layer caching — speeds up rebuilds)
+# If requirements.txt hasn't changed, Docker uses cached layer
+COPY app/backend/requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# ── STAGE 2: Final image ──────────────────────────────────────
+FROM python:3.11-slim AS final
+
+# Don't run as root — security best practice
+RUN useradd --create-home --shell /bin/bash appuser
+
+WORKDIR /app
+
+# Copy installed packages from builder stage
+COPY --from=builder /root/.local /home/appuser/.local
+
+# Copy application code
+COPY app/backend/ .
+
+# Switch to non-root user
+USER appuser
+
+# Make sure scripts in .local are usable
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+# Expose the port FastAPI runs on
+EXPOSE 8000
+
+# Health check built into Docker image
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD python -c "import httpx; httpx.get('http://localhost:8000/health')"
+
+# Start the application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

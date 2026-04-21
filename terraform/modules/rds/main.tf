@@ -19,7 +19,7 @@ resource "aws_db_instance" "main" {
 
   # Engine
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   instance_class = "db.t3.micro"              # Free tier eligible
 
   # Storage

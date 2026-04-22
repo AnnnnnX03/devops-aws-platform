@@ -10,6 +10,7 @@
 resource "aws_ecr_repository" "backend" {
   name                 = "${var.project_name}-backend"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true   
 
   image_scanning_configuration {
     scan_on_push = true                        # Automatically scan for vulnerabilities
@@ -24,6 +25,7 @@ resource "aws_ecr_repository" "backend" {
 resource "aws_ecr_repository" "ai_service" {
   name                 = "${var.project_name}-ai-service"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true   
 
   image_scanning_configuration {
     scan_on_push = true

@@ -1,8 +1,8 @@
-# 🚀 DevOps AWS Platform
+# DevOps AWS Platform
 
 A production-grade 3-tier architecture on AWS with CI/CD, monitoring, and an AI API layer.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
 Internet
@@ -26,7 +26,7 @@ IaC:        Terraform
 CI/CD:      GitHub Actions
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 devops-aws-platform/
@@ -47,7 +47,7 @@ devops-aws-platform/
 └── docs/                 ← Architecture diagrams
 ```
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -61,7 +61,7 @@ devops-aws-platform/
 | Monitoring | CloudWatch + Grafana |
 | AI Layer | Python + OpenAI API |
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - AWS Account with CLI configured
@@ -91,14 +91,13 @@ docker-compose up --build
 ## 📚 Learning Objectives
 
 By completing this project, you will have hands-on experience with:
-- ✅ VPC design with public/private subnets
-- ✅ ECS Fargate container deployment
-- ✅ RDS setup with secure private networking
-- ✅ CloudFront + S3 static hosting
-- ✅ GitHub Actions CI/CD pipelines
-- ✅ Terraform Infrastructure as Code
-- ✅ CloudWatch monitoring (4 Golden Signals)
-- ✅ Docker multi-stage builds
-- ✅ AI API deployment on AWS
-# CI/CD Test
-# trigger deploy
+-  VPC design with public/private subnets
+-  ECS Fargate container deployment
+-  RDS setup with secure private networking
+-  CloudFront + S3 static hosting
+-  GitHub Actions CI/CD pipelines
+-  Terraform Infrastructure as Code
+-  CloudWatch monitoring (4 Golden Signals)
+-  Docker multi-stage builds
+-  AI API deployment on AWS
+
